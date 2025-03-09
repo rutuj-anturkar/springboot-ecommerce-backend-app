@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,8 @@ public class UserServiceImpl implements UserService{
     private UserRepository userRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public void registerUser(UserRegistrationDTO registrationDTO) {
@@ -29,6 +32,7 @@ public class UserServiceImpl implements UserService{
             throw new RuntimeException("User already exists");
         }
         User user = modelMapper.map(registrationDTO, User.class);
+        user.setPassword(passwordEncoder.encode((registrationDTO.getPassword())));
         user.addCart(new Cart());
         userRepository.save(user);
     }

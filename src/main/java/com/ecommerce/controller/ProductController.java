@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
@@ -31,7 +33,8 @@ public class ProductController {
     }
 
     @GetMapping
-    ResponseEntity<?> getAllProducts(){
+    ResponseEntity<?> getAllProducts(Principal principal){
+        System.out.println("Principal in product controller" + principal.getName());
         return ResponseEntity.status(HttpStatus.OK).body(productService.getAllProducts());
     }
 
