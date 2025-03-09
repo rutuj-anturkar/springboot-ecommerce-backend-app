@@ -21,6 +21,8 @@ public class User extends  Base{
 
     private String email;
 
+    private String role;
+
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name="cart_id",nullable = false,unique = true)
     private Cart cart;

@@ -8,11 +8,16 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
@@ -52,6 +57,7 @@ public class JwtTokenProvider {
 //                .claim("authorities", getAuthoritiesInString(userPrincipal.getAuthorities()))
 //                // setting a custom claim , to add user id (remove it if not required in the project)
                 .claim("user_id", userDetails.getUser().getId())
+                .claim("authorities", getAuthoritiesInString(userDetails.getAuthorities()))
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -81,5 +87,20 @@ public class JwtTokenProvider {
     // this method will be invoked by our custom JWT filter to get user id n store it in auth token
     public Long getUserIdFromJwtToken(Claims claims) {
         return Long.valueOf((int) claims.get("user_id"));
+    }
+
+    private String getAuthoritiesInString(Collection<? extends GrantedAuthority> authorities) {
+        String authorityString = authorities.stream().
+                map(authority -> authority.getAuthority())
+                .collect(Collectors.joining(","));
+        System.out.println(authorityString);
+        return authorityString;
+    }
+    // this method will be invoked by our custom JWT filter to get list of granted authorities n store it in auth token
+    public List<GrantedAuthority> getAuthoritiesFromClaims(Claims claims) {
+        String authString = (String) claims.get("authorities");
+        List<GrantedAuthority> authorities = AuthorityUtils.commaSeparatedStringToAuthorityList(authString);
+        authorities.forEach(System.out::println);
+        return authorities;
     }
 }
